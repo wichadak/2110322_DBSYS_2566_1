@@ -414,54 +414,52 @@ ON A.branch_name = B.branch_name;
 ================================
 ORDERSYSTEM (Exercise)
 ================================
-As root
-=======
-CREATE DATABASE ordersystem;
-GRANT ALL PRIVILEGES ON ordersystem.* TO 'wichadak'@'localhost';  
-FLUSH PRIVILEGES;
-
-GRANT ALTER ON ordersystem3.* to 'wichadak3'@'localhost';
-
-As wichadak
-===========
-USE ordersystem3;
 
 ALTER DATABASE ordersystem3 CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+# We need to define ENUM type separately in postgreSQL
+CREATE TYPE colors AS ENUM('Cherry', 'Natural Ash', 'White Ash', 'Red Oak', 'Natural Oak', 'Walnut');
 
 CREATE TABLE PRODUCT(
 PRODUCT_ID INTEGER NOT NULL, 
 PRODUCT_DESCRIPTION VARCHAR(50), 
-PRODUCT_FINISH ENUM('Cherry', 'Natural Ash',
-'White Ash', 'Red Oak', 'Natural
-Oak', 'Walnut'), 
-STANDARD_PRICE DECIMAL(6,2),
+PRODUCT_FINISH colors,
+STANDARD_PRICE DECIMAL(8,2),
 CONSTRAINT PRODUCT_PK PRIMARY KEY(PRODUCT_ID));
 
 CREATE TABLE CUSTOMER(
-CUSTOMER_ID INTEGER(11) NOT NULL, 
+CUSTOMER_ID INTEGER NOT NULL, 
 CUSTOMER_NAME VARCHAR(25) NOT NULL, 
 CUSTOMER_ADDRESS VARCHAR(30),
 CITY VARCHAR(20),
 POSTAL_CODE VARCHAR(9),
 CONSTRAINT CUSTOMER_PK PRIMARY KEY (CUSTOMER_ID));
 
-ALTER TABLE customer CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
-
 CREATE TABLE ORDERT(
-    ORDER_ID INTEGER(11) NOT NULL,
-    ORDER_DATE DATETIME DEFAULT CURRENT_TIMESTAMP,
-    CUSTOMER_ID INTEGER(11),
-    CONSTRAINT ORDER_PK PRIMARY KEY(ORDER_ID,CUSTOMER_ID),
+    ORDER_ID INTEGER NOT NULL,
+    ORDER_DATE TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CUSTOMER_ID INTEGER NOT NULL,
+    CONSTRAINT ORDER_PK PRIMARY KEY(ORDER_ID),
     CONSTRAINT ORDER_FK FOREIGN KEY(CUSTOMER_ID) REFERENCES CUSTOMER(CUSTOMER_ID));
 
 CREATE TABLE ORDER_LINE(
-    ORDER_ID INTEGER(11) NOT NULL, 
-    PRODUCT_ID INTEGER(11) NOT NULL, 
-    ORDERED_QUANTITY INTEGER(11),
+    ORDER_ID INTEGER NOT NULL, 
+    PRODUCT_ID INTEGER NOT NULL, 
+    ORDERED_QUANTITY INTEGER,
     CONSTRAINT ORDER_LINE_PK PRIMARY KEY (ORDER_ID, PRODUCT_ID),
     CONSTRAINT ORDER_LINE_FK1 FOREIGN KEY (ORDER_ID) REFERENCES ORDERT(ORDER_ID),
     CONSTRAINT ORDER_LINE_FK2 FOREIGN KEY (PRODUCT_ID) REFERENCES PRODUCT(PRODUCT_ID));
 
+
+\copy customer FROM '/Users/duangdaowichadakul/Desktop/2110322_DBSYS_2566_1/ordersystem/customer.csv' DELIMITER ',' CSV;
+
+\copy product FROM '/Users/duangdaowichadakul/Desktop/2110322_DBSYS_2566_1/ordersystem/product.csv' DELIMITER ',' CSV;
+
+\copy ordert FROM '/Users/duangdaowichadakul/Desktop/2110322_DBSYS_2566_1/ordersystem/order.csv' DELIMITER ',' CSV;
+
+\copy order_line FROM '/Users/duangdaowichadakul/Desktop/2110322_DBSYS_2566_1/ordersystem/order_line.csv' DELIMITER ',' CSV;
+
+#========== Ignore the following lines just for testing some integrity ============
 INSERT INTO customer (CUSTOMER_ID, CUSTOMER_NAME, CUSTOMER_ADDRESS, CITY, POSTAL_CODE) VALUES ('10001', 'จอน', 'ปทุมวัน','กรุงเทพ', '10330');
 INSERT INTO product (PRODUCT_ID, PRODUCT_DESCRIPTION, PRODUCT_FINISH, STANDARD_PRICE) VALUES ('0001', 'Table', 'Red Oak', '2000'), ('0002', 'Chair', 'Walnut', '5000');
 INSERT INTO ordert (ORDER_ID, CUSTOMER_ID) VALUES ('001', '10001');
@@ -472,36 +470,3 @@ INSERT INTO order_line (ORDER_ID, PRODUCT_ID, ORDERED_QUANTITY) VALUES ('002', '
 SELECT * FROM customer NATURAL JOIN ordert NATURAL JOIN order_line; 
 
 DELETE FROM customer WHERE CUSTOMER_ID ='10001'; # error due to referential integrity constraints
-
-LOAD DATA LOCAL INFILE 'ordersystem/customer.csv'
-INTO TABLE customer
-FIELDS TERMINATED BY ',';
-
-LOAD DATA LOCAL INFILE 'ordersystem/ordert.csv'
-INTO TABLE ordert
-FIELDS TERMINATED BY ',';
-
-LOAD DATA LOCAL INFILE 'ordersystem/product.csv'
-INTO TABLE product
-FIELDS TERMINATED BY ',';
-
-LOAD DATA LOCAL INFILE 'ordersystem/order_line.csv'
-INTO TABLE order_line
-FIELDS TERMINATED BY ',';
-
-
-
-utf8_general_ci
-
-=================
-Backup
-=================
-
-CREATE TABLE reserve (
-  sid VARCHAR(2) NOT NULL,
-  bid VARCHAR(3) NOT NULL,
-  day DATE DEFAULT NULL,
-  PRIMARY KEY (sid,bid),
-  CONSTRAINT bid FOREIGN KEY (bid) REFERENCES boat(bid) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT sid FOREIGN KEY (sid) REFERENCES sailor(sid) ON DELETE NO ACTION ON UPDATE NO ACTION
-);
