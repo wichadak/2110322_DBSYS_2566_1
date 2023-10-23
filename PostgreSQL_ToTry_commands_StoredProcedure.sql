@@ -1,4 +1,4 @@
-#==================
+a#==================
 # select into
 #==================
 do $$ 
@@ -448,8 +448,8 @@ EXPLAIN ANALYZE SELECT first_name, last_name, phone_1 FROM customer WHERE phone_
 #=================
 ** Session 1 **
 START TRANSACTION;
-INSERT INTO boat VALUES(112,'AAA','Black');
-INSERT INTO boat VALUES(113,'BBB','Red');
+INSERT INTO boat VALUES(120,'AAA','Black');
+INSERT INTO boat VALUES(121,'BBB','Red');
 SELECT * FROM boat;
 SELECT * FROM boat;
 

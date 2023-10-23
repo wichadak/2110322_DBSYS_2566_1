@@ -415,7 +415,6 @@ ON A.branch_name = B.branch_name;
 ORDERSYSTEM (Exercise)
 ================================
 
-ALTER DATABASE ordersystem3 CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 # We need to define ENUM type separately in postgreSQL
 CREATE TYPE colors AS ENUM('Cherry', 'Natural Ash', 'White Ash', 'Red Oak', 'Natural Oak', 'Walnut');
